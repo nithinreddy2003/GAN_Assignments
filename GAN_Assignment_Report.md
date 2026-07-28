@@ -100,6 +100,20 @@ All three tasks share a fixed training recipe so comparisons stay controlled: Ba
 
 ## 6. Conclusion
 
+The single comparison that ties the whole report together is how each GAN scored on its own domain's yardstick (Table 1). Read across it, the image GANs order themselves exactly as their visual quality suggests, the clean high-contrast QuickDraw sketches score far better on FID than the soft, texture-heavy OCT scans, and within QuickDraw the structurally repetitive *house* is easiest by a wide margin. The tabular GAN, judged instead on distribution alignment, shows the opposite of the "more data helps" intuition: widening from one day to all eight nearly doubles the mean gap and further inflates the variance gap, quantifying the generalisation failure directly.
+
+***Table 1.** Consolidated results across all experiments (metrics as computed in the notebook).*
+
+| Part | Model | Data | Metric | Value |
+|---|---|---|---|---|
+| 2.1 | DCGAN | OCTMNIST scans | FID (lower = better) | **79.02** |
+| 2.1 (ext.) | Conditional DCGAN | OCTMNIST scans | final losses D / G | 0.34 / 4.90 |
+| 2.3 | DCGAN | QuickDraw *birthday cake* | FID | **42.67** |
+| 2.3 (ext.) | DCGAN | QuickDraw *cat* | FID | **41.60** |
+| 2.3 (ext.) | DCGAN | QuickDraw *house* | FID | **22.65** |
+| 2.2 | MLP GAN | CICIDS Wednesday (DoS) | mean-gap / std-gap | **0.0723 / 0.3179** |
+| 2.2 (ext.) | MLP GAN | CICIDS all days | mean-gap / std-gap | **0.1300 / 0.4670** |
+
 Across all four experiments the pattern is consistent: GANs reproduce the *dominant* structure of a distribution well and, once stabilised, avoid mode collapse, but they lose the *tails and fine detail*, thinning at the sine/spiral peaks, blur in the OCT scans (FID 79.02), collapsed variance of binary flag features (std gap 0.3179, worsening to 0.4670 on the full dataset), and broken sketch strokes. Two findings are genuinely informative: the multi-day cybersecurity GAN generalised *worse* than the single-day model, showing one unconditional generator cannot cover many modes at once; and in the creative task structural variety predicted difficulty better than ink density. The recurring "looks real vs is true" hazard means none of this synthetic data should be trusted downstream without validation.
 
 For future work, a Wasserstein objective with gradient penalty would give smoother gradients and better tail coverage; class-conditional or per-family models would fix the multi-attack generalisation failure; mixed discrete/continuous architectures (e.g. CTGAN-style) would target the tabular flag-feature collapse directly; and a domain-appropriate FID feature extractor would make the medical-image metric more meaningful. Longer training and larger samples would tighten every FID reported here.
