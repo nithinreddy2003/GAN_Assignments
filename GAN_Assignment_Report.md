@@ -48,6 +48,12 @@ All three tasks share a fixed training recipe so comparisons stay controlled: Ba
 
 ***Figure 4.** OCTMNIST DCGAN training loss curves.* The discriminator loss stays low (≈0.4-0.6) while the generator oscillates in the 2-5 range without collapsing, a discriminator that keeps a modest edge but never wins outright, so the generator kept receiving usable gradient across all 60 epochs.
 
+<p align="center">
+  <img src="./images/octmnist_progression.png" width="90%" alt="OCT samples across epochs" />
+</p>
+
+***Figure 5.** OCTMNIST DCGAN samples across epochs (1, 16, 30, 45, 60).* Early snapshots are little more than random texture; a recognisable layered retinal band emerges by the middle epochs and then only sharpens slightly, which shows the generator is learning the scan structure progressively rather than latching onto a single memorised image.
+
 **Reflection ("looks real vs is true").** The discriminator only ever answers "real or fake"; nothing checks that a generated structure is physiologically valid. The generator can therefore invent a bright band or lesion-like patch that never occurred in a real patient, as long as it looks plausible, this is the hazard of treating GAN output as data. A hallucinated region could mimic disease that is absent, or smooth over a real anomaly, so a synthetic scan must never be used diagnostically. The defensible uses are augmentation and teaching, and any model trained on synthetic scans should be validated on a real-only holdout to confirm it has not just learned to spot GAN artefacts.
 
 **Extension: conditional GAN.** The unconditional model cannot be asked for a specific class. A conditional GAN (Mirza and Osindero, 2014) feeds the label into both networks (embedded and concatenated with the latent vector for the generator; embedded as an extra image channel for the discriminator), forcing realism *per class*. Each class is oversampled to balance the data, and the discriminator uses a slower learning rate, a two-time-scale update that stabilises training (Heusel et al., 2017).
@@ -56,7 +62,7 @@ All three tasks share a fixed training recipe so comparisons stay controlled: Ba
   <img src="./images/octmnist_cgan_per_class.png" width="60%" alt="cGAN one class per row" />
 </p>
 
-***Figure 5.** Conditional GAN output, one diagnostic class per row.* Each row is visibly class-consistent, so the model produces a chosen category on demand. Its losses end near D = 0.34, G = 4.90, similar in character to the unconditional run.
+***Figure 6.** Conditional GAN output, one diagnostic class per row.* Each row is visibly class-consistent, so the model produces a chosen category on demand. Its losses end near D = 0.34, G = 4.90, similar in character to the unconditional run.
 
 ---
 
@@ -70,7 +76,13 @@ All three tasks share a fixed training recipe so comparisons stay controlled: Ba
   <img src="./images/pca_real_vs_fake.png" width="52%" alt="PCA of real vs generated flows" />
 </p>
 
-***Figure 6.** PCA of real (blue) vs generated (red) flow vectors.* In PCA (Jolliffe, 2002), and equally in t-SNE (van der Maaten and Hinton, 2008), the generated cloud sits on the main body of real points but is more concentrated, capturing where most traffic lives without reaching the tails. Quantitatively, the mean absolute error on feature *means* is a good **0.0723** (standardised units) but on *standard deviations* a weaker **0.3179**: the GAN matches average values far better than spread. The worst-aligned features are timing and flag columns, `FIN Flag Count` (mean error 0.326), the `Bwd IAT` family, `Destination Port`, `Fwd IAT Mean`, `URG Flag Count` and `Fwd PSH Flags`. For the near-binary flags the generated std almost vanishes (`URG Flag Count` 0.030, `Fwd PSH Flags` 0.024, versus real ≈0.9-1.0), so the generator pins them to a constant, partial mode collapse on the discrete features.
+***Figure 7.** PCA of real (blue) vs generated (red) flow vectors.* In PCA (Jolliffe, 2002), and equally in t-SNE (van der Maaten and Hinton, 2008), the generated cloud sits on the main body of real points but is more concentrated, capturing where most traffic lives without reaching the tails. Quantitatively, the mean absolute error on feature *means* is a good **0.0723** (standardised units) but on *standard deviations* a weaker **0.3179**: the GAN matches average values far better than spread. The worst-aligned features are timing and flag columns, `FIN Flag Count` (mean error 0.326), the `Bwd IAT` family, `Destination Port`, `Fwd IAT Mean`, `URG Flag Count` and `Fwd PSH Flags`. For the near-binary flags the generated std almost vanishes (`URG Flag Count` 0.030, `Fwd PSH Flags` 0.024, versus real ≈0.9-1.0), so the generator pins them to a constant, partial mode collapse on the discrete features.
+
+<p align="center">
+  <img src="./images/tsne_real_vs_fake.png" width="55%" alt="t-SNE of real vs generated flows" />
+</p>
+
+***Figure 8.** t-SNE of real (blue) vs generated (red) flow vectors.* t-SNE pulls apart local clusters that PCA tends to blur together, and the generated points still sit on the main real clusters while packing a little more tightly, the same story the alignment numbers tell: the bulk of the distribution is covered but the spread is slightly under-produced.
 
 **Reflection (security).** The hallucination problem bites harder here: a generated flow only has to look like traffic, a far weaker bar than matching a real attack's timing, packet structure and flag sequences. Used to augment an IDS, a fabricated "attack" matching no real signature could teach the model to miss genuine attacks, while a fabricated "benign" flow drifting attack-ward could raise false positives. Unlike the OCT case there is no visual sanity check for 78 numbers, so the burden falls on quantitative checks that, as the flag collapse shows, can look fine while hiding a behavioural failure. One clarification: the Wednesday file contains **DoS** variants, not DDoS, despite the brief's wording; genuine DDoS is in the Friday file, used below.
 
@@ -78,7 +90,7 @@ All three tasks share a fixed training recipe so comparisons stay controlled: Ba
   <img src="./images/pca_full_dataset_by_attack_type.png" width="90%" alt="All-days PCA by attack type and real vs generated" />
 </p>
 
-***Figure 7.** All-days PCA coloured by attack type (left) and real-vs-generated (right).* Combining all eight days (with per-file capping) gives 125,310 rows over every attack family. The generator covers the dense centre (BENIGN, DoS Hulk, true DDoS) but under-represents the smaller clusters. Tellingly, adding diversity made alignment **worse**: mean |mean error| rose 0.0723 → **0.1300** and mean |std error| 0.3179 → **0.4670**, now dominated by the timing family (`Flow Duration`, `Fwd IAT Total`, `Idle`/`Flow IAT` statistics). Forcing one unconditional generator to cover many modes cost more than the extra data gained, so it does not generalise cleanly. A class-conditional GAN, or one model per attack family, is the obvious next step.
+***Figure 9.** All-days PCA coloured by attack type (left) and real-vs-generated (right).* Combining all eight days (with per-file capping) gives 125,310 rows over every attack family. The generator covers the dense centre (BENIGN, DoS Hulk, true DDoS) but under-represents the smaller clusters. Tellingly, adding diversity made alignment **worse**: mean |mean error| rose 0.0723 → **0.1300** and mean |std error| 0.3179 → **0.4670**, now dominated by the timing family (`Flow Duration`, `Fwd IAT Total`, `Idle`/`Flow IAT` statistics). Forcing one unconditional generator to cover many modes cost more than the extra data gained, so it does not generalise cleanly. A class-conditional GAN, or one model per attack family, is the obvious next step.
 
 ---
 
@@ -89,22 +101,28 @@ All three tasks share a fixed training recipe so comparisons stay controlled: Ba
 **Model and training.** A doodle is defined by where strokes go, i.e. local spatial structure, so the Part 2.1 DCGAN builders apply directly (reuse across such different domains is itself a good check). The only change is a larger 128-D latent vector for the greater shape variety. Training is Adam (lr = 2e-4) with label smoothing, 30,000 images, 50 epochs; the discriminator stays low (≈0.34-0.9) while the generator oscillates (1.3-6.1) with no collapse.
 
 <p align="center">
+  <img src="./images/quickdraw_loss_curves.png" width="60%" alt="QuickDraw DCGAN loss curves" />
+</p>
+
+***Figure 10.** QuickDraw DCGAN training loss curves.* The discriminator loss stays low (≈0.34-0.9) while the generator loss swings through the 1.3-6.1 range as the two networks trade advantage; the absence of a runaway spike or a flat-lined trace confirms stable adversarial training with no collapse across the 50 epochs.
+
+<p align="center">
   <img src="./images/quickdraw_real_vs_fake.png" width="60%" alt="Real vs generated cake sketches" />
 </p>
 
-***Figure 8.** Real (left) vs generated (right) birthday-cake sketches.* The final cakes are easy to read and vary across the grid (no mode collapse); flaws are the usual line-art ones, broken or doubled strokes and slight speckle. The FID is **42.67**, notably better than the OCT scans' 79.02, fitting the intuition that clean line art on a plain background sits more comfortably in InceptionV3's feature space than soft medical texture.
+***Figure 11.** Real (left) vs generated (right) birthday-cake sketches.* The final cakes are easy to read and vary across the grid (no mode collapse); flaws are the usual line-art ones, broken or doubled strokes and slight speckle. The FID is **42.67**, notably better than the OCT scans' 79.02, fitting the intuition that clean line art on a plain background sits more comfortably in InceptionV3's feature space than soft medical texture.
 
 <p align="center">
   <img src="./images/quickdraw_progression.png" width="60%" alt="Cake samples across epochs" />
 </p>
 
-***Figure 9.** Generated cake samples across epochs (1, 13, 26, 38, 50).* The progression shows the outline and candles appearing early in training and then sharpening, evidence that the generator is learning the cake structure rather than memorising it.
+***Figure 12.** Generated cake samples across epochs (1, 13, 26, 38, 50).* The progression shows the outline and candles appearing early in training and then sharpening, evidence that the generator is learning the cake structure rather than memorising it.
 
 <p align="center">
   <img src="./images/quickdraw_extension_complexity.png" width="85%" alt="FID vs ink density by category" />
 </p>
 
-***Figure 10.** FID by category (left) vs mean ink density (right).* Training the same DCGAN on *cat* and *house* lets me compare FID against a cheap complexity proxy, mean ink density. Both rank in the same direction, house (0.2368, FID **22.65**) < cat (0.2655, FID **41.60**) < cake (0.2708, FID **42.67**), so busier categories were harder here. Two caveats: cat and cake are within ~1 FID point (well inside run-to-run noise), so their order should not be over-read; and the real signal is that house is easiest by a wide margin. A house is essentially a square plus a triangle (a repeated template), whereas cats and cakes vary far more in pose and layout, so **structural variety, more than ink coverage, drives difficulty**.
+***Figure 13.** FID by category (left) vs mean ink density (right).* Training the same DCGAN on *cat* and *house* lets me compare FID against a cheap complexity proxy, mean ink density. Both rank in the same direction, house (0.2368, FID **22.65**) < cat (0.2655, FID **41.60**) < cake (0.2708, FID **42.67**), so busier categories were harder here. Two caveats: cat and cake are within ~1 FID point (well inside run-to-run noise), so their order should not be over-read; and the real signal is that house is easiest by a wide margin. A house is essentially a square plus a triangle (a repeated template), whereas cats and cakes vary far more in pose and layout, so **structural variety, more than ink coverage, drives difficulty**.
 
 ---
 
