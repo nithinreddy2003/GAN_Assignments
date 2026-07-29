@@ -1,0 +1,22 @@
+# Core numerical / data handling
+numpy
+pandas
+scipy
+scikit-learn
+
+# Plotting
+matplotlib
+
+# Deep learning frameworks
+torch
+torchvision
+tensorflow[and-cuda]   # CPU-only machines: replace with plain `tensorflow`
+
+# Datasets
+medmnist                # OCTMNIST (auto-downloads on first run)
+kagglehub                # CICIDS2017 (requires Kaggle API credentials, see README)
+
+# Utilities used for downloads / progress bars
+requests
+tqdm
+pillow
