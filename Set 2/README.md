@@ -34,17 +34,16 @@ The notebook's first cell also installs the packages automatically if they are m
   use. No manual step needed.
 - **QuickDraw (Part 2.3)** - the 'birthday cake' (and extension) categories are fetched
   automatically from Google's public QuickDraw bucket and cached locally.
-- **CICIDS 2017 (Part 2.2)** - download the eight per-day CSVs from Kaggle:
-  https://www.kaggle.com/datasets/chethuhn/network-intrusion-dataset
-  Put the eight CSV files in one folder and set `CICIDS_DIR` (in the Part 2.2 "Get the
-  CSV files" cell) to point at that folder. If the files are not found, that cell raises
-  a clear error with the download link.
+- **CICIDS 2017 (Part 2.2)** - downloaded automatically by the Part 2.2 "Get the CSV
+  files" cell via `kagglehub` from https://www.kaggle.com/datasets/chethuhn/network-intrusion-dataset
+  This is a public dataset, so no Kaggle account or API token is required; the files are
+  fetched directly and cached locally (about 1 GB), so re-runs reuse the copy on disk.
 
 ## How to run
 
 1. Install the requirements (or let the setup cell do it).
-2. If running Part 2.2, download the CICIDS 2017 CSVs and set `CICIDS_DIR`.
-3. Run the notebook top to bottom on a GPU runtime with internet enabled.
+2. Run the notebook top to bottom on a GPU runtime with internet enabled (all three
+   datasets download automatically on first use).
 
 `QUICK_SMOKE_TEST` (near the top of the notebook) can be set to `True` for a fast
 end-to-end check with fewer epochs; leave it `False` to reproduce the full report figures.
