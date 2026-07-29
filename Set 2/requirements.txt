@@ -1,0 +1,21 @@
+# Set 2 - GAN Assignment dependencies
+# Tested with Python 3.10 on a single NVIDIA GPU (CUDA).
+# Parts 1, 2.1 and 2.2 use PyTorch; Part 2.3 uses TensorFlow/Keras.
+
+# Deep learning frameworks
+torch
+torchvision
+tensorflow
+
+# Datasets / data handling
+medmnist          # OCTMNIST (Part 2.1), auto-downloads on first use
+numpy
+pandas
+scipy
+scikit-learn
+
+# Plotting and utilities
+matplotlib
+pillow
+tqdm
+requests
