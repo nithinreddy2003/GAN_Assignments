@@ -1,6 +1,6 @@
 # Generative Adversarial Networks (GANs)
 
-Single notebook (`GAN_Assignment_Final.ipynb`) covering a from-scratch GAN on
+Single notebook (`GAN_Assignment_Set2_Final.ipynb`) covering a from-scratch GAN on
 synthetic 2D data plus three real-world GAN applications.
 
 | Part | Content | Framework |
