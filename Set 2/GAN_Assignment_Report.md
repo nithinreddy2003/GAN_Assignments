@@ -6,7 +6,7 @@ This report documents building generative adversarial networks (GANs) from scrat
 
 ## Part 1: Building and Understanding GANs from Scratch
 
-The generator and discriminator are small multi-layer perceptrons (MLPs) built by one configurable factory, so Task 3's architecture change reuses the same training loop. Training uses the non-saturating objective through `BCEWithLogitsLoss`, which avoids the early vanishing gradients of the original minimax loss (Goodfellow et al., 2014), optimised with Adam (Kingma and Ba, 2015). MLPs suit this data because 2D coordinates have no spatial grid for a convolution to exploit.
+The generator and discriminator are small multi-layer perceptrons (MLPs) built by one configurable factory, so Task 3's architecture change reuses the same training loop. Training uses the non-saturating objective through `BCEWithLogitsLoss`, which avoids the early vanishing gradients of the original minimax loss (Goodfellow et al., 2014), optimised with Adam. MLPs suit this data because 2D coordinates have no spatial grid for a convolution to exploit.
 
 ### Task 1: Reproduce the sine-wave GAN
 
@@ -32,7 +32,7 @@ Figure 2 captures both tasks at once. The baseline (left) reaches all eight mode
 
 ### Part 2.1: Optical coherence tomography (OCT) retinal images with MedMNIST
 
-OCTMNIST is a MedMNIST subset of 28×28 grayscale retinal OCT scans in four diagnostic classes (Yang et al., 2023). I train a DCGAN, which suits images because it replaces dense layers with strided and transposed convolutions, adds BatchNorm (Ioffe and Szegedy, 2015) and LeakyReLU/ReLU activations, and uses a weight-init recipe shown to stabilise image GANs (Radford et al., 2015). Images are worked at 32×32 (a clean power of two for the four conv stages) and scaled to `[-1, 1]` to match the generator's Tanh.
+OCTMNIST is a MedMNIST subset of 28×28 grayscale retinal OCT scans in four diagnostic classes (Yang et al., 2023). I train a DCGAN, which suits images because it replaces dense layers with strided and transposed convolutions, adds BatchNorm and LeakyReLU/ReLU activations, and uses a weight-init recipe shown to stabilise image GANs (Radford et al., 2015). Images are worked at 32×32 (a clean power of two for the four conv stages) and scaled to `[-1, 1]` to match the generator's Tanh.
 
 ![OCTMNIST training-set class distribution across the four diagnostic classes.](report_images/fig03_octmnist_class_distribution.png)
 
@@ -50,7 +50,7 @@ Figure 4 tracks 40 epochs. Training starts unbalanced (`D=0.39`, `G=5.35` at epo
 
 **Figure 5.** Real versus generated OCT scans, FID = 43.70.
 
-Figure 5 compares real and generated scans, quantified with FID, which compares InceptionV3 feature statistics between the two sets (Heusel et al., 2017; Szegedy et al., 2016). The generator scores **FID = 43.70**. Visually the fakes capture the bright curved retinal band over a darker background and are varied rather than collapsed, but are softer with occasionally smeared sub-layers — consistent with a mid-40s FID at 32×32 after 40 epochs. I read the score as directional, since Inception was trained on natural RGB photos, not grayscale scans.
+Figure 5 compares real and generated scans, quantified with FID, which compares InceptionV3 feature statistics between the two sets (Heusel et al., 2017). The generator scores **FID = 43.70**. Visually the fakes capture the bright curved retinal band over a darker background and are varied rather than collapsed, but are softer with occasionally smeared sub-layers — consistent with a mid-40s FID at 32×32 after 40 epochs. I read the score as directional, since Inception was trained on natural RGB photos, not grayscale scans.
 
 **Extension — conditional GAN.** To generate a chosen class on demand I built a conditional DCGAN (Mirza and Osindero, 2014), embedding the label and concatenating it with the latent vector for the generator while adding it as a discriminator input channel.
 
@@ -58,7 +58,7 @@ Figure 5 compares real and generated scans, quantified with FID, which compares 
 
 **Figure 6.** Class-conditional samples from the cGAN extension.
 
-A naïve version collapsed (discriminator loss to zero, generator loss diverging, noise output). Three fixes stabilised it: one-sided label smoothing (real target 0.9) to curb discriminator over-confidence (Salimans et al., 2016), a two time-scale update rule with a slower discriminator (Heusel et al., 2017), and class-balanced sampling for the 6:1 imbalance. Figure 6 shows samples generated per class on request, with losses recovering from `D=0.66`, `G=3.03` at epoch 1 into a stable range. The between-class differences stay subtle, reflecting how similar these scans look even in the real data.
+A naïve version collapsed (discriminator loss to zero, generator loss diverging, noise output). Three fixes stabilised it: one-sided label smoothing (real target 0.9) to curb discriminator over-confidence, a two time-scale update rule with a slower discriminator (Heusel et al., 2017), and class-balanced sampling for the 6:1 imbalance. Figure 6 shows samples generated per class on request, with losses recovering from `D=0.66`, `G=3.03` at epoch 1 into a stable range. The between-class differences stay subtle, reflecting how similar these scans look even in the real data.
 
 **Reflection, and the "generating ducks" question.** The point behind the "ducks" prompt is that the DCGAN has no idea it is looking at eyes — it only learns the statistics of a pile of 32×32 arrays. Swap in duck photos and the identical code learns those instead. That content-agnosticism is why the same recipe transfers across Part 2, but it is also the key limitation: the discriminator learns *real versus fake*, never *anatomically plausible*, so it can render convincing structure with no anatomical basis. Synthetic scans are fine for augmentation or teaching but should not feed a real diagnostic pipeline without expert review.
 
@@ -88,7 +88,7 @@ Figure 9 colours real points by family. The synthetic cloud leans to BENIGN and 
 
 ### Part 2.3: Creative AI – QuickDraw 'birthday cake' Subset
 
-The final task trains a DCGAN on QuickDraw 'birthday cake' — 28×28 grayscale sketch bitmaps (Ha and Eck, 2018). I implement it in TensorFlow/Keras (Abadi et al., 2016) in the `model.fit` style: functional-API generator and discriminator wrapped in a `keras.Model` subclass whose `train_step` performs the adversarial update, deliberately showing a different framework and style from earlier parts. The config is a 100-d latent vector, 48 base feature maps, Adam at `lr = 0.00015` (`β₁ = 0.5`) and 35 epochs at batch 256; the generator has 677,952 parameters. Of 144,982 available sketches I train on a random 30,000.
+The final task trains a DCGAN on QuickDraw 'birthday cake' — 28×28 grayscale sketch bitmaps (Ha and Eck, 2018). I implement it in TensorFlow/Keras in the `model.fit` style: functional-API generator and discriminator wrapped in a `keras.Model` subclass whose `train_step` performs the adversarial update, deliberately showing a different framework and style from earlier parts. The config is a 100-d latent vector, 48 base feature maps, Adam at `lr = 0.00015` (`β₁ = 0.5`) and 35 epochs at batch 256; the generator has 677,952 parameters. Of 144,982 available sketches I train on a random 30,000.
 
 ![Real birthday-cake sketches (left) versus DCGAN-generated sketches (right).](report_images/fig10_quickdraw_cake_real_vs_fake.png)
 
@@ -118,8 +118,6 @@ Three directions follow. First, **coverage of rare classes**: both the OCT imbal
 
 ## References
 
-Abadi, M. et al. (2016) 'TensorFlow: A system for large-scale machine learning', in *Proceedings of the 12th USENIX Symposium on Operating Systems Design and Implementation (OSDI)*. Savannah, GA, pp. 265–283.
-
 Goodfellow, I. et al. (2014) 'Generative adversarial nets', in *Advances in Neural Information Processing Systems (NeurIPS) 27*. Montreal, pp. 2672–2680.
 
 Gulrajani, I. et al. (2017) 'Improved training of Wasserstein GANs', in *Advances in Neural Information Processing Systems (NeurIPS) 30*. Long Beach, CA, pp. 5767–5777.
@@ -128,21 +126,13 @@ Ha, D. and Eck, D. (2018) 'A neural representation of sketch drawings', in *Inte
 
 Heusel, M. et al. (2017) 'GANs trained by a two time-scale update rule converge to a local Nash equilibrium', in *Advances in Neural Information Processing Systems (NeurIPS) 30*. Long Beach, CA, pp. 6626–6637.
 
-Ioffe, S. and Szegedy, C. (2015) 'Batch normalization: accelerating deep network training by reducing internal covariate shift', in *Proceedings of the 32nd International Conference on Machine Learning (ICML)*. Lille, pp. 448–456.
-
-Kingma, D.P. and Ba, J. (2015) 'Adam: a method for stochastic optimization', in *International Conference on Learning Representations (ICLR)*. San Diego, CA.
-
 Klambauer, G. et al. (2017) 'Self-normalizing neural networks', in *Advances in Neural Information Processing Systems (NeurIPS) 30*. Long Beach, CA, pp. 971–980.
 
 Mirza, M. and Osindero, S. (2014) 'Conditional generative adversarial nets', *arXiv preprint* arXiv:1411.1784.
 
 Radford, A., Metz, L. and Chintala, S. (2015) 'Unsupervised representation learning with deep convolutional generative adversarial networks', *arXiv preprint* arXiv:1511.06434.
 
-Salimans, T. et al. (2016) 'Improved techniques for training GANs', in *Advances in Neural Information Processing Systems (NeurIPS) 29*. Barcelona, pp. 2234–2242.
-
 Sharafaldin, I., Lashkari, A.H. and Ghorbani, A.A. (2018) 'Toward generating a new intrusion detection dataset and intrusion traffic characterization', in *Proceedings of the 4th International Conference on Information Systems Security and Privacy (ICISSP)*. Funchal, pp. 108–116.
-
-Szegedy, C. et al. (2016) 'Rethinking the Inception architecture for computer vision', in *Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)*. Las Vegas, NV, pp. 2818–2826.
 
 van der Maaten, L. and Hinton, G. (2008) 'Visualizing data using t-SNE', *Journal of Machine Learning Research*, 9, pp. 2579–2605.
 
