@@ -1,4 +1,4 @@
-# Set 2 - GAN Assignment dependencies
+# GAN Assignment dependencies
 # Tested with Python 3.10 on a single NVIDIA GPU (CUDA).
 # Parts 1, 2.1 and 2.2 use PyTorch; Part 2.3 uses TensorFlow/Keras.
 

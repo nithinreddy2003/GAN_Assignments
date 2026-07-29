@@ -1,6 +1,6 @@
-# Set 2 - Generative Adversarial Networks (GANs)
+# Generative Adversarial Networks (GANs)
 
-Single notebook (`GAN_Assignment_Set2_Final.ipynb`) covering a from-scratch GAN on
+Single notebook (`GAN_Assignment_Final.ipynb`) covering a from-scratch GAN on
 synthetic 2D data plus three real-world GAN applications.
 
 | Part | Content | Framework |
@@ -11,7 +11,7 @@ synthetic 2D data plus three real-world GAN applications.
 | Part 2.3 | Creative DCGAN on QuickDraw 'birthday cake', plus other-category extension | TensorFlow/Keras |
 
 Every figure and metric (loss curves, sample grids, FID scores) is written to a
-`results_set2/` folder and zipped at the end for use in the report.
+`results/` folder and zipped at the end for use in the report.
 
 ## Requirements
 
