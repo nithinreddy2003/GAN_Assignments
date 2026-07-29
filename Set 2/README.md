@@ -24,7 +24,7 @@ Install dependencies:
 
 ```bash
 pip install -r requirements.txt
-```
+
 
 The notebook's first cell also installs the packages automatically if they are missing.
 
