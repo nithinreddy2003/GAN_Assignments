@@ -16,7 +16,7 @@ Part 1 was implemented entirely in PyTorch. Both networks are small multilayer p
 
 The target is points sampled along *y* = sin(*x*). Training ran for 6000 steps from a 32-dimensional latent vector.
 
-![Task 1: sine-wave real vs generated](part1_task1_sine.png)
+![Task 1: sine-wave real vs generated](Set%203%20Images%20Results/43d21613cb93b51d8770dbe7210f5bd53512b101.png)
 *Figure 1: Real (blue) versus generated (orange) samples for the sine-wave GAN after 6000 steps.*
 
 Figure 1 shows the generated cloud lying almost exactly on the sine curve, and the loss trace supports this rather than contradicting it. The discriminator settles at roughly 1.35–1.39 (final 1.3796) and the generator at roughly 0.68–0.76 (final 0.6979), which is close to the theoretical equilibrium for this objective — about 2ln2 ≈ 1.386 for D and ln2 ≈ 0.693 for G. Neither network runs away from the other, so the model has reached the balanced state that indicates genuine convergence rather than one side dominating.
@@ -25,7 +25,7 @@ Figure 1 shows the generated cloud lying almost exactly on the sine curve, and t
 
 The chosen distribution is the noisy parametric curve *y* = sin(2*x*) + 0.3cos(5*x*) + ε, with ε a small Gaussian noise term. This is harder than the plain sine because of the higher-frequency second term and the noise band, and it ran for 8000 steps.
 
-![Task 2: noisy parametric curve real vs generated](part1_task2.png)
+![Task 2: noisy parametric curve real vs generated](Set%203%20Images%20Results/6974007aaaaf458258f44b60a844f3ce0ff9eecb.png)
 *Figure 2: Real versus generated samples for the noisy parametric curve y = sin(2x) + 0.3cos(5x) + ε.*
 
 Figure 2 shows the generator tracing the full double-bump shape and, importantly, spreading its points into the same noisy band as the real data rather than collapsing onto a single thin line. This means it has learned the variance of the target and not merely its mean trend. The losses stay healthy across the run (D between 1.1652 and 1.3705, G between 0.7229 and 0.8429) and are slightly noisier than in Task 1, which is the expected consequence of a more oscillatory, higher-frequency target.
@@ -34,7 +34,7 @@ Figure 2 shows the generator tracing the full double-bump shape and, importantly
 
 To test sensitivity to architecture, the baseline generator (depth 2, ReLU) was compared against a deeper variant (depth 4, ELU) on the same target and training budget, changing only the generator.
 
-![Task 3: baseline versus modified architecture](part1_task3_comparison.png)
+![Task 3: baseline versus modified architecture](Set%203%20Images%20Results/a7dce6cb8a6f1dc16ff028d424cf5e31df0895c3.png)
 *Figure 3: Generated samples from the baseline (depth 2, ReLU) and modified (depth 4, ELU) generators against the real curve.*
 
 Figure 3 shows a visible but modest improvement: the deeper ELU generator sits slightly tighter around the curve and leaves fewer stray points drifting off the shape. Its losses remained stable (final D 1.3821, G 0.7089), so the extra depth did not introduce optimisation problems. The improvement being incremental rather than dramatic is itself informative — a 2D curve is simple enough that the shallow baseline already captures most of the structure, so added capacity has limited room to help.
@@ -47,24 +47,24 @@ Figure 3 shows a visible but modest improvement: the deeper ELU generator sits s
 
 **Dataset and approach.** The OCTMNIST subset of MedMNIST (Yang *et al.*, 2023) provides 97,477 training scans of 28×28 pixels across four diagnostic classes: choroidal neovascularisation, diabetic macular edema, drusen, and normal. Images were rescaled to 32×32 in the [−1, 1] range to match the generator's `tanh` output. A DCGAN (Radford *et al.*, 2016) was chosen because OCT scans have strong local spatial structure — a curved retinal band over a dark background — which convolutions capture far more efficiently than a dense network. The generator upsamples a 100-dimensional latent vector through transposed convolutions; the discriminator mirrors this with strided convolutions and dropout of 0.3. Training used a manual `tf.GradientTape` loop for 35 epochs with one-sided label smoothing (real labels set to 0.9), a technique from Salimans *et al.* (2016) that stops the discriminator becoming over-confident and starving the generator of gradient.
 
-![OCTMNIST class distribution](oct_class_distribution.png)
+![OCTMNIST class distribution](Set%203%20Images%20Results/b9fe7580670ba1e0790b7aa7d35d642c09f1bc68.png)
 *Figure 4: Class distribution of the OCTMNIST training split.*
 
 Figure 4 shows the dataset is imbalanced, with the four classes represented very unequally. This matters later: an imbalanced training set is exactly the condition under which a class-conditional generator produces uneven quality, and it frames the interpretation of the conditional results below.
 
-![OCT training losses](oct_losses.png)
+![OCT training losses](Set%203%20Images%20Results/a1aace33aaab2560b9a12a1df4301d1347543d6f.png)
 *Figure 5: Generator and discriminator loss curves over the 35-epoch DCGAN run.*
 
 Figure 5 shows neither network diverging. The discriminator stays around 1.1–1.34 and the generator around 0.75–1.28, oscillating within a stable band rather than collapsing — the healthy adversarial signature. This stability is what makes the sample quality in Figure 6 believable rather than accidental.
 
-![OCT real versus generated scans](oct_real_vs_fake.png)
+![OCT real versus generated scans](Set%203%20Images%20Results/f4f9c6377442ee619def914e84d4394b8e79cf14.png)
 *Figure 6: Real (left) versus generated (right) OCT scans from the trained generator.*
 
 Figure 6 shows the generator reproduces the main anatomy — a bright, curved retinal band on a darker background — with genuine variation in band position and curvature across the batch, so it is not memorising one image. The clear weakness is fine detail: the fakes look softer than the real scans and lose the sharp sub-layer texture and speckle. Quantitatively, the model scores **FID = 39.20** (Heusel *et al.*, 2017). This is a believable mid-range value for a 35-epoch DCGAN, but it should be read cautiously: FID here pushes 28×28 medical grayscale (upscaled to 32×32) through an InceptionV3 (Szegedy *et al.*, 2016) trained on natural ImageNet photographs, a domain the metric was never calibrated for, so it is best treated as an indicator rather than an absolute benchmark.
 
 **Extension — conditional GAN.** For extra credit the DCGAN was made conditional (Mirza and Osindero, 2014) by concatenating a class embedding onto the latent vector and feeding the label to the discriminator as an extra channel.
 
-![OCT conditional GAN, one class per row](oct_cgan_per_class.png)
+![OCT conditional GAN, one class per row](Set%203%20Images%20Results/c3d597b0e96011b073ebed14a9d482b9822d77d4.png)
 *Figure 7: Class-conditional samples, one diagnostic class per row.*
 
 Figure 7 shows visibly different scans from row to row, confirming the generator uses the label rather than ignoring it. Quality is uneven across classes, and the better-represented classes look sharper — the direct consequence of the imbalance seen in Figure 4.
@@ -75,20 +75,20 @@ Figure 7 shows visibly different scans from row to row, confirming the generator
 
 **Dataset and approach.** CICIDS 2017 (Sharafaldin *et al.*, 2018) was downloaded directly through `kagglehub` and the eight per-day capture files were combined into a single frame of **2,830,743 flows × 80 columns**, of which **78 are numeric features**. Because each flow is a feature vector rather than an image, a dense (fully-connected) GAN was used instead of a DCGAN — convolutions have no meaningful spatial axis to exploit here. The generator widens 128→256 with batch normalisation and ReLU and ends in a linear layer (the standardised features are unbounded, so no `tanh`), and the discriminator narrows 256→128 with LeakyReLU and dropout. The latent dimension is 48 and training ran for 60 epochs.
 
-![CICIDS 2017 class distribution](cicids_class_distribution.png)
+![CICIDS 2017 class distribution](Set%203%20Images%20Results/7346a93d7e2feb018a303868ac6d292479989d81.png)
 *Figure 8: Class distribution across all days (log scale) and flows per day.*
 
 Figure 8 shows severe class imbalance: BENIGN dominates at 2,273,097 flows, while rare attacks such as Heartbleed (11), SQL Injection (21) and Infiltration (36) barely appear. The log scale is necessary precisely because of this spread. Following the brief, the model was trained on the **Wednesday file only** (691,406 rows: 440,031 BENIGN plus DoS Hulk, GoldenEye, slowloris and Slowhttptest), on a sampled 20,000 rows. Features were standardised and clipped to ±5σ, which was essential to stop CICIDS's extreme outliers (and 4,376 infinite / 1,358 missing values) from destabilising training.
 
-![CICIDS feature-vector GAN losses](cicids_loss_curves.png)
+![CICIDS feature-vector GAN losses](Set%203%20Images%20Results/a1a417695bf2338ac5ed485041aa5ddf73e9f08f.png)
 *Figure 9: Discriminator and generator loss curves for the Wednesday feature-vector GAN.*
 
 Figure 9 shows stable training: the discriminator drifts down from about 1.13 to 0.87 while the generator rises from about 1.11 to 1.73. The steadily rising generator loss against a controlled discriminator is typical of a dense GAN settling, and matches the reasonable distributional overlap seen next.
 
-![CICIDS PCA of real versus synthetic](cicids_pca.png)
+![CICIDS PCA of real versus synthetic](Set%203%20Images%20Results/f16ce793d3f35c24631bcacee54c7c7545011b4c.png)
 *Figure 10: PCA projection of real BENIGN, real DoS and synthetic feature vectors.*
 
-![CICIDS t-SNE of real versus synthetic](cicids_tsne.png)
+![CICIDS t-SNE of real versus synthetic](Set%203%20Images%20Results/4d72fcc9500b3ca8262ceaf517837f081f0dd6b3.png)
 *Figure 11: t-SNE projection of real versus synthetic feature vectors.*
 
 Figures 10 and 11 tell a consistent story. In both the linear PCA view and the non-linear t-SNE view (van der Maaten and Hinton, 2008), the synthetic points fall inside the main mass of real traffic rather than forming a separate blob, so the generator has found the correct region of feature space. However, the synthetic cloud is noticeably tighter than the real one and does not reach into the tails. The alignment-gap metrics quantify this: on the Wednesday data the mean absolute error in per-feature means is **0.1227** while the error in per-feature standard deviations is **0.2780**, meaning the generator matches average feature values well but understates how far each feature actually spreads.
@@ -101,14 +101,14 @@ Figures 10 and 11 tell a consistent story. In both the linear PCA view and the n
 
 **Dataset and approach.** The QuickDraw *birthday cake* category (Ha and Eck, 2018) provides **144,982** 28×28 bitmaps. A PyTorch DCGAN with a 128-dimensional latent vector was trained for 30 epochs using the DCGAN weight initialisation of Radford *et al.* (2016) and one-sided label smoothing. A convolutional model suits sketches because, like the OCT scans, they carry local stroke structure.
 
-![QuickDraw birthday cake real versus generated](qd_cake_real_vs_fake.png)
+![QuickDraw birthday cake real versus generated](Set%203%20Images%20Results/4d29b02fce9393f50c92f8f1ea474b7d36994357.png)
 *Figure 12: Real (left) versus generated (right) 'birthday cake' sketches.*
 
 Figure 12 shows the generated cakes are clearly recognisable — most have a body shape with candle-like marks on top, and some include a plate or base line. They are not all clean (a few broken or doubled strokes, some background speckle), but the core silhouette is consistent across the grid, with no sign of mode collapse. Training was stable overall despite a brief spike at epoch 13 (D 1.633, G 11.493) that quickly recovered, and the model scored **FID = 34.29**.
 
 **Extension — other categories and sketch complexity.** The same pipeline was run on *cat* and *house* and the FID compared against an ink-density proxy for sketch complexity.
 
-![QuickDraw extension: FID versus ink-density complexity](qd_extension_summary.png)
+![QuickDraw extension: FID versus ink-density complexity](Set%203%20Images%20Results/06c9fd4841a65a62cdc062a7fb955cb0d87b04ba.png)
 *Figure 13: FID by category alongside the ink-density complexity proxy.*
 
 Figure 13 shows ink density ordered as house (0.1725) < cat (0.1986) < cake (0.1989), and FID as house (**26.44**) < cake (**34.29**) < cat (**38.79**). The sparsest category, house, is both the least inked and the easiest to model, supporting the intuition that emptier sketches are simpler. But cat and cake have almost identical ink density while cat scores clearly worse, so ink alone does not explain difficulty. The most plausible reading is that cat sketches vary far more in pose and internal detail (ears, whiskers, body angle) than cakes, and it is this structural variety, not the amount of ink, that makes the category harder.
