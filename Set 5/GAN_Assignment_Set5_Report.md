@@ -8,7 +8,7 @@ A generative adversarial network (GAN) trains a generator against a discriminato
 
 ## Part 1: Building and Understanding GANs from Scratch
 
-Part 1 was implemented directly in PyTorch. The generator is an MLP regularised with Layer Normalisation (Ba, Kiros & Hinton, 2016) and the critic is constrained with spectral normalisation (Miyato et al., 2018), which was chosen because on tiny 2D problems an unconstrained critic wins almost immediately; spectral normalisation is the cheapest principled way to keep the two networks balanced. Both optimise the non-saturating loss with one-sided label smoothing (Salimans et al., 2016) using Adam (Kingma & Ba, 2015).
+Part 1 was implemented directly in PyTorch. The generator is an MLP regularised with Layer Normalisation (Ba, Kiros & Hinton, 2016) and the critic is constrained with spectral normalisation (Miyato et al., 2018), which was chosen because on tiny 2D problems an unconstrained critic wins almost immediately; spectral normalisation is the cheapest principled way to keep the two networks balanced. Both optimise the non-saturating loss with one-sided label smoothing (Salimans et al., 2016) using the Adam optimiser.
 
 ### Task 1 — Reproducing the sine-wave GAN
 
@@ -33,7 +33,7 @@ The third task holds the target fixed and swaps only the generator: a two-layer 
 ![Figure 3: Baseline (left) versus deeper GELU generator (right).](Set%205%20Oputput%20Images/b9fc72ed60c571a8d73c2718a58b0cd0af37590a.png)
 *Figure 3 — Architecture comparison: baseline versus modified generator.*
 
-Numerically the two variants are almost identical (both critic ≈ 1.36–1.37, generator ≈ 0.80), so the loss curves alone suggest no difference. The value of Figure 3 is that it exposes what the metrics hide: the deeper GELU generator produces visibly tighter, better-separated clusters with less inter-mode bridging. The wider lesson, recurring throughout, is that loss values and sample quality are not the same thing.
+Numerically the two variants are almost identical (both critic ≈ 1.36–1.37, generator ≈ 0.80), so the loss curves alone suggest no difference. The value of Figure 3 is that it exposes what the metrics hide: the deeper GELU generator produces visibly tighter, better-separated clusters with less inter-mode bridging. The wider lesson, recurring throughout, is that loss values and sample quality are not the same thing. It also cautions against tuning GAN architectures on loss alone: judged only on final loss the depth-and-activation change would look pointless, when in fact it measurably improved mode separation.
 
 ---
 
@@ -56,7 +56,7 @@ Figure 5 shows the two losses oscillating within a bounded band across 40 epochs
 ![Figure 6: Real (left) versus generated (right) OCT scans.](Set%205%20Oputput%20Images/2df62b0fb6d47f7935adcd310cb8544c0810d5e8.png)
 *Figure 6 — OCT DCGAN: real versus generated retinal scans.*
 
-Figure 6 is backed quantitatively by a Fréchet Inception Distance (FID) of **32.74** (Heusel et al., 2017), the lowest of the three image models here. The generated scans capture the essential anatomy — a bright, curved retinal band on a dark background — and vary in the band's shape and position, so the generator is not memorising one template. The main weakness is fine texture: the fakes are slightly too smooth, consistent with a good but non-zero FID. This is the expected signature of a loss that rewards global plausibility over pixel detail; a higher-capacity generator or a perceptual-loss term would be the natural way to recover the missing speckle.
+Figure 6 is backed quantitatively by a Fréchet Inception Distance (FID) of **32.74** (Heusel et al., 2017), the lowest of the three image models here. The generated scans capture the essential anatomy — a bright, curved retinal band on a dark background — and vary in the band's shape and position, so the generator is not memorising one template. The main weakness is fine texture: the fakes are slightly too smooth, consistent with a good but non-zero FID. This is the expected signature of a loss that rewards global plausibility over pixel detail; a higher-capacity generator or a perceptual-loss term would be the natural way to recover the missing speckle. In a medical setting this smoothing is not harmless, since the fine speckle can itself carry diagnostic signal.
 
 **Extension — conditional GAN.** For extra credit the DCGAN was extended into a conditional GAN (Mirza & Osindero, 2014) so a class can be requested on demand.
 
@@ -82,7 +82,7 @@ Figure 8 uses a log scale precisely because BENIGN traffic (2,273,097 flows) dwa
 ![Figure 10: t-SNE of real versus synthetic feature vectors.](Set%205%20Oputput%20Images/fd3b1a5f935386cb780032842376028d4967bd0c.png)
 *Figure 10 — t-SNE of real versus synthetic flows.*
 
-Figures 9 and 10 compare the distributions with PCA (Jolliffe & Cadima, 2016) and t-SNE (van der Maaten & Hinton, 2008). In both, the synthetic points sit inside the real cloud rather than off to one side, so the generator finds the right region of feature space; however, the synthetic cloud is slightly tighter, under-representing the spread. The alignment metrics quantify this — a mean per-feature difference of **0.2435** in means and **0.2395** in standard deviations — a moderate fit that captures location and scale but not the heavy tails. The tails matter operationally, because intrusion detectors often key on rare, extreme feature values, so a generator that compresses the spread risks producing traffic that looks normal precisely where the real discriminative signal lives.
+Figures 9 and 10 compare the distributions with PCA and t-SNE (van der Maaten & Hinton, 2008). In both, the synthetic points sit inside the real cloud rather than off to one side, so the generator finds the right region of feature space; however, the synthetic cloud is slightly tighter, under-representing the spread. The alignment metrics quantify this — a mean per-feature difference of **0.2435** in means and **0.2395** in standard deviations — a moderate fit that captures location and scale but not the heavy tails. The tails matter operationally, because intrusion detectors often key on rare, extreme feature values, so a generator that compresses the spread risks producing traffic that looks normal precisely where the real discriminative signal lives.
 
 **Extension — the full dataset.** Retraining on all eight days and every attack type gives Figure 11, with real points coloured by attack family.
 
@@ -116,7 +116,7 @@ Figure 14 gives the most interesting result. The FIDs are cake **24.59**, cat **
 
 ## Conclusion and Future Work
 
-Across all four problems the models trained stably and matched the real data on the metrics used: the Part 1 GANs reach every mode, the OCT DCGAN reaches an FID of 32.74 with a working conditional extension, the CICIDS generator places synthetic flows inside the real distribution with moderate moment gaps, and the QuickDraw DCGAN reaches an FID of 24.59 on cakes. The analysis also surfaced clear limits: saturated losses can hide real quality differences (Task 3); conditional GANs are highly sensitive to how the label is injected (2.1); unconditional generators under-represent rare classes on imbalanced data (2.2); and drawing difficulty is driven by geometric regularity, not ink volume (2.3). Future work would address these with a Wasserstein GAN with gradient penalty (Gulrajani et al., 2017) to tighten the CICIDS gaps, class-conditional oversampling to serve rare attack families, and a downstream train-on-synthetic/test-on-real test to measure the *utility* of synthetic data rather than only its distributional match. For the medical task a domain-specific perceptual metric would be more trustworthy than an ImageNet-based FID (Szegedy et al., 2016), where the "duck" problem is most consequential.
+Across all four problems the models trained stably and matched the real data on the metrics used: the Part 1 GANs reach every mode, the OCT DCGAN reaches an FID of 32.74 with a working conditional extension, the CICIDS generator places synthetic flows inside the real distribution with moderate moment gaps, and the QuickDraw DCGAN reaches an FID of 24.59 on cakes. The analysis also surfaced clear limits: saturated losses can hide real quality differences (Task 3); conditional GANs are highly sensitive to how the label is injected (2.1); unconditional generators under-represent rare classes on imbalanced data (2.2); and drawing difficulty is driven by geometric regularity, not ink volume (2.3). Future work would address these with a Wasserstein GAN with gradient penalty to tighten the CICIDS gaps, class-conditional oversampling to serve rare attack families, and a downstream train-on-synthetic/test-on-real test to measure the *utility* of synthetic data rather than only its distributional match. For the medical task a domain-specific perceptual metric would be more trustworthy than the ImageNet-based FID used here, where the "duck" problem is most consequential. A complementary next step would be a small classifier-based sanity check on the conditional samples, verifying that a network trained on real OCT scans assigns generated images to the intended class before any downstream use.
 
 ---
 
@@ -128,15 +128,12 @@ Ba, J.L., Kiros, J.R. and Hinton, G.E. (2016) 'Layer normalization', *arXiv prep
 
 Goodfellow, I., Pouget-Abadie, J., Mirza, M., Xu, B., Warde-Farley, D., Ozair, S., Courville, A. and Bengio, Y. (2014) 'Generative adversarial nets', *Advances in Neural Information Processing Systems (NeurIPS)*, 27, pp. 2672–2680.
 
-Gulrajani, I., Ahmed, F., Arjovsky, M., Dumoulin, V. and Courville, A. (2017) 'Improved training of Wasserstein GANs', *Advances in Neural Information Processing Systems (NeurIPS)*, 30.
 
 Ha, D. and Eck, D. (2017) 'A neural representation of sketch drawings', *arXiv preprint* arXiv:1704.03477.
 
 Heusel, M., Ramsauer, H., Unterthiner, T., Nessler, B. and Hochreiter, S. (2017) 'GANs trained by a two time-scale update rule converge to a local Nash equilibrium', *Advances in Neural Information Processing Systems (NeurIPS)*, 30, pp. 6626–6637.
 
-Jolliffe, I.T. and Cadima, J. (2016) 'Principal component analysis: a review and recent developments', *Philosophical Transactions of the Royal Society A*, 374(2065).
 
-Kingma, D.P. and Ba, J. (2015) 'Adam: a method for stochastic optimization', *International Conference on Learning Representations (ICLR)*.
 
 Mirza, M. and Osindero, S. (2014) 'Conditional generative adversarial nets', *arXiv preprint* arXiv:1411.1784.
 
@@ -150,7 +147,6 @@ Salimans, T., Goodfellow, I., Zaremba, W., Cheung, V., Radford, A. and Chen, X. 
 
 Sharafaldin, I., Lashkari, A.H. and Ghorbani, A.A. (2018) 'Toward generating a new intrusion detection dataset and intrusion traffic characterization', *Proceedings of the 4th International Conference on Information Systems Security and Privacy (ICISSP)*, pp. 108–116.
 
-Szegedy, C., Vanhoucke, V., Ioffe, S., Shlens, J. and Wojna, Z. (2016) 'Rethinking the Inception architecture for computer vision', *Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)*, pp. 2818–2826.
 
 van der Maaten, L. and Hinton, G. (2008) 'Visualizing data using t-SNE', *Journal of Machine Learning Research*, 9, pp. 2579–2605.
 
