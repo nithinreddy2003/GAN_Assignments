@@ -41,12 +41,12 @@ Numerically the two variants are almost identical (both critic ≈ 1.36–1.37, 
 
 ### Part 2.1: Optical coherence tomography (OCT) retinal images with MedMNIST
 
-This application trains a deep convolutional GAN (DCGAN) on OCTMNIST (Yang et al., 2023). The DCGAN (Radford, Metz & Chintala, 2015) is the natural choice for images because its strided convolutions learn spatial structure directly. The training split holds 97,477 grayscale scans across four diagnostic classes, rescaled to 32×32 in [−1, 1] to match the generator's tanh output.
+This application trains a deep convolutional GAN (DCGAN) on OCTMNIST (Yang et al., 2023). The DCGAN (Radford, Metz & Chintala, 2015) is the natural choice for images because its strided convolutions learn spatial structure directly. It provides 97,477 grayscale scans spanning four diagnostic categories; I resized each scan to 32×32 and normalised the pixels to the [−1, 1] interval expected by the tanh-terminated generator.
 
 ![Figure 4: OCTMNIST training-set class distribution.](Set%205%20Oputput%20Images/a85ed5788966f847f3fc368a0982924946dfb642.png)
-*Figure 4 — Class distribution of the OCTMNIST training split.*
+*Figure 4 — How many training scans fall in each OCTMNIST diagnostic category.*
 
-Figure 4 reveals a clearly imbalanced dataset, which matters later: the most frequent classes are the ones the conditional model reproduces best. The generator upsamples a size-100 latent vector to 32×32 with nearest-neighbour upsampling and 3×3 convolutions — transposed convolutions were avoided because they leave checkerboard artefacts (Odena, Dumoulin & Olah, 2016) — and the critic is a strided-convolution stack with Batch Normalisation, trained for 40 epochs.
+As Figure 4 makes plain, the four categories are far from evenly represented, and that skew resurfaces later: whichever categories dominate the training counts are the ones the conditional model renders most convincingly. The generator upsamples a size-100 latent vector to 32×32 with nearest-neighbour upsampling and 3×3 convolutions — transposed convolutions were avoided because they leave checkerboard artefacts (Odena, Dumoulin & Olah, 2016) — and the critic is a strided-convolution stack with Batch Normalisation, trained for 40 epochs.
 
 ![Figure 5: Generator and discriminator loss curves for the OCT DCGAN.](Set%205%20Oputput%20Images/8ed43e7f62aaca52119da778af68a559e593529e.png)
 *Figure 5 — OCT DCGAN training losses.*
@@ -82,7 +82,7 @@ Figure 8 uses a log scale precisely because BENIGN traffic (2,273,097 flows) dwa
 ![Figure 10: t-SNE of real versus synthetic feature vectors.](Set%205%20Oputput%20Images/fd3b1a5f935386cb780032842376028d4967bd0c.png)
 *Figure 10 — t-SNE of real versus synthetic flows.*
 
-Figures 9 and 10 compare the distributions with PCA and t-SNE (van der Maaten & Hinton, 2008). In both, the synthetic points sit inside the real cloud rather than off to one side, so the generator finds the right region of feature space; however, the synthetic cloud is slightly tighter, under-representing the spread. The alignment metrics quantify this — a mean per-feature difference of **0.2435** in means and **0.2395** in standard deviations — a moderate fit that captures location and scale but not the heavy tails. The tails matter operationally, because intrusion detectors often key on rare, extreme feature values, so a generator that compresses the spread risks producing traffic that looks normal precisely where the real discriminative signal lives.
+Figures 9 and 10 compare the distributions with PCA and t-SNE (van der Maaten & Hinton, 2008). In each projection the generated flows land within the body of the real data instead of forming a separate island, which tells me the generator has located the correct part of the feature space; the synthetic points are, however, packed a little more tightly than the real ones, so their variability is understated. The alignment metrics quantify this — a mean per-feature difference of **0.2435** in means and **0.2395** in standard deviations — a moderate fit that captures location and scale but not the heavy tails. The tails matter operationally, because intrusion detectors often key on rare, extreme feature values, so a generator that compresses the spread risks producing traffic that looks normal precisely where the real discriminative signal lives.
 
 **Extension — the full dataset.** Retraining on all eight days and every attack type gives Figure 11, with real points coloured by attack family.
 
