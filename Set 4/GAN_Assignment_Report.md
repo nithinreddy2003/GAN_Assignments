@@ -86,39 +86,33 @@ Figure 8 shows extreme imbalance: BENIGN dominates with 2,273,097 flows, then Do
 
 **Figure 9.** PCA of real BENIGN, real DoS and synthetic feature vectors (Wednesday model).
 
-Figure 9 projects the 78-dimensional vectors to two components. The synthetic points sit within the spread of the real ones rather than forming a separate island — the first sign the generator learned the broad distribution rather than collapsing.
-
-![Figure 10](Set%204%20Result%20Images/9f2c0ecdefc01a04e2e11c73dbddea209bf7035d.png)
-
-**Figure 10.** t-SNE of real versus synthetic feature vectors (Wednesday model).
-
-Figure 10 gives the non-linear view (van der Maaten and Hinton, 2008), better at exposing local structure. Synthetic points overlap the real manifold across most regions but thin out in some pockets, matching the alignment gaps: the mean absolute per-feature difference is **0.4583** for means and **0.5373** for standard deviations. This is a moderate match — the generator captures the general shape but under-represents the spread of heavy-tailed or near-binary features (byte/packet counts, flag columns), the known hard case for tabular GANs.
+Figure 9 projects the 78-dimensional vectors to two principal components. The synthetic points sit within the spread of the real BENIGN and DoS points rather than forming a separate island, showing the generator learned the broad distribution rather than collapsing; a t-SNE projection in the notebook gives a consistent non-linear view (van der Maaten and Hinton, 2008). The per-feature alignment gaps quantify the match: mean absolute differences of **0.4583** (means) and **0.5373** (standard deviations) — a moderate rather than tight fit, where the generator captures the general shape but under-represents the spread of heavy-tailed or near-binary features such as byte/packet counts and flag columns, the known hard case for tabular GANs.
 
 **Extension — full multi-day dataset.** Retraining on a 30,000-row sample spanning all days tests whether one unconditional generator can cover many attack families.
 
-![Figure 11](Set%204%20Result%20Images/6185fa52602d60257146e00448b17091fe09c63a.png)
+![Figure 10](Set%204%20Result%20Images/6185fa52602d60257146e00448b17091fe09c63a.png)
 
-**Figure 11.** Full-dataset PCA — real points coloured by attack family versus synthetic points.
+**Figure 10.** Full-dataset PCA — real points coloured by attack family versus synthetic points.
 
-Figure 11 shows the real data now spans many families and the synthetic points concentrate where the mass is. The gaps worsen slightly (mean **0.5680**, std **0.6145**) — the expected result of spreading one generator across more families: BENIGN and high-volume attacks dominate, while rare families such as Heartbleed and Infiltration are under-represented. The duck test bites harder here than for images, since there is no "just look at it" check for 78 numbers: a fake "attack" matching no real signature could teach a detector the wrong pattern, and a fake "benign" flow drifting toward attack-like statistics could inflate false positives — which is why the PCA/t-SNE overlap and per-feature gaps matter more here than a visual check.
+Figure 10 shows the real data now spans many families and the synthetic points concentrate where the mass is. The gaps worsen slightly (mean **0.5680**, std **0.6145**) — the expected result of spreading one generator across more families: BENIGN and high-volume attacks dominate, while rare families such as Heartbleed and Infiltration are under-represented. The duck test bites harder here than for images, since there is no "just look at it" check for 78 numbers: a fake "attack" matching no real signature could teach a detector the wrong pattern, and a fake "benign" flow drifting toward attack-like statistics could inflate false positives — which is why the PCA/t-SNE overlap and per-feature gaps matter more here than a visual check.
 
 ### Part 2.3: Creative AI — QuickDraw 'birthday cake' Subset
 
 The QuickDraw birthday-cake category provides 144,982 grayscale 28×28 doodles (Ha and Eck, 2017). These are sparse line drawings but still images with local structure, so the same resize-convolution DCGAN is appropriate; bitmaps are served through a custom `Dataset`. Training tracks losses, snapshots samples across epochs, and measures quality with FID.
 
-![Figure 12](Set%204%20Result%20Images/81dcbf6f6c1199ca640664ec997fc53223a341d9.png)
+![Figure 11](Set%204%20Result%20Images/81dcbf6f6c1199ca640664ec997fc53223a341d9.png)
 
-**Figure 12.** Real (left) versus generated (right) 'birthday cake' sketches.
+**Figure 11.** Real (left) versus generated (right) 'birthday cake' sketches.
 
-Figure 12 shows the generated cakes are recognisable — a cake-body silhouette with candle-like marks appears consistently across the batch — and training stayed stable across 45 epochs (final D ≈ 0.416 / G ≈ 4.214) without diverging. The FID is **41.01**, a solid score for sparse sketches.
+Figure 11 shows the generated cakes are recognisable — a cake-body silhouette with candle-like marks appears consistently across the batch — and training stayed stable across 45 epochs (final D ≈ 0.416 / G ≈ 4.214) without diverging. The FID is **41.01**, a solid score for sparse sketches.
 
 **Extension — other categories and sketch complexity.** The pipeline was repeated on *cat* and *house*, with FID placed against an ink-density complexity proxy. The cat model initially collapsed under a one-to-one schedule, so — demonstrating an alternative training strategy rather than a new architecture — cat was trained with three generator updates per discriminator update, a lower discriminator learning rate (a two-time-scale update rule; Heusel et al., 2017) and 60 epochs, cutting its FID from a collapsed ~98 to 67.36.
 
-![Figure 13](Set%204%20Result%20Images/3ef116d51773d161b1fa3ed9ff4919f03b09210f.png)
+![Figure 12](Set%204%20Result%20Images/3ef116d51773d161b1fa3ed9ff4919f03b09210f.png)
 
-**Figure 13.** FID by category (left) versus ink-density complexity proxy (right).
+**Figure 12.** FID by category (left) versus ink-density complexity proxy (right).
 
-Figure 13 reveals a clean relationship: the ink-density order house (0.1721) < cake (0.1967) < cat (0.1986) matches the FID order house (**28.76**) < cake (**41.01**) < cat (**67.36**) exactly. The sparsest, most regular category is easiest and the busiest is hardest. The deeper driver is intra-class variety: cat sketches differ far more from one another (pose, ears, whiskers) than houses do, which is the harder thing for a fixed-capacity DCGAN to capture and why cat stays weakest even after the stronger schedule.
+Figure 12 reveals a clean relationship: the ink-density order house (0.1721) < cake (0.1967) < cat (0.1986) matches the FID order house (**28.76**) < cake (**41.01**) < cat (**67.36**) exactly. The sparsest, most regular category is easiest and the busiest is hardest. The deeper driver is intra-class variety: cat sketches differ far more from one another (pose, ears, whiskers) than houses do, which is the harder thing for a fixed-capacity DCGAN to capture and why cat stays weakest even after the stronger schedule.
 
 ## Conclusion
 
