@@ -64,7 +64,7 @@ Figure 6 shows the generated scans reproduce the defining structure of a real OC
 
 **Reflection and the "duck test".** A discriminator only ever learns "real or fake", never "anatomically correct" — the GAN version of the duck test, where a sample that looks and "quacks" convincingly passes. Nothing stops the generator inventing a bright region or layer boundary no real scan had, provided it is statistically plausible. A good FID only says the *aggregate* statistics of a batch are close to real, not whether any single image is trustworthy: a hallucinated bright patch could mimic pathology that is not there. I would therefore restrict synthetic scans to augmentation or teaching and re-validate any classifier trained on them against real-only data.
 
-**Extension — conditional GAN.** The generator concatenates a learned class embedding with the latent vector and the discriminator takes the label as an extra image channel (Mirza and Osindero, 2014). The label channel let the discriminator overpower the generator (loss climbing to 8–12), so a two-time-scale schedule — lower discriminator learning rate and three generator steps per critic step — was needed to rebalance it.
+**Extension — conditional GAN.** The generator concatenates a learned class embedding with the latent vector and the discriminator takes the label as an extra image channel (Mirza and Osindero, 2014). The label channel let the discriminator overpower the generator (loss climbing to 8–12), so it was rebalanced with a lower discriminator learning rate, three generator steps per critic step, and decaying instance noise on the discriminator's inputs.
 
 ![Figure 7](Set%204%20Result%20Images/1499c8335b3ec723f1bd6e9764632d3d642a40ff.png)
 
