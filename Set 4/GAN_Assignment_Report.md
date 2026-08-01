@@ -36,7 +36,7 @@ Holding the target and budget fixed, only the network changed: the baseline gene
 
 **Figure 3.** Task 3 — baseline (depth 3, GELU) versus modified (depth 5, LeakyReLU-0.3) generators against the real spiral.
 
-Figure 3 shows the two point clouds are very similar in coverage and shape, and both hold losses near equilibrium throughout (D ≈ 1.37–1.46, G ≈ 0.66–0.76, ending D ≈ 1.46 / G ≈ 0.69 for the modified network). The deeper LeakyReLU model does not destabilise training; its loss trace is marginally smoother. The useful conclusion is that added depth and a leaky activation are safe here, which motivates the deeper convolutional variants used in Part 2.
+Figure 3 shows the two point clouds are very similar in coverage and shape, and both hold losses near equilibrium throughout (D ≈ 1.37–1.46, G ≈ 0.66–0.76, ending D ≈ 1.46 / G ≈ 0.69 for the modified network). The deeper LeakyReLU model does not destabilise training; its loss trace is marginally smoother. This shows added depth and a leaky activation are safe here, motivating the deeper convolutional variants used in Part 2.
 
 ## Part 2: Real-World GAN Applications
 
