@@ -92,7 +92,7 @@ Figure 9 projects the 78-dimensional vectors to two components. The synthetic po
 
 **Figure 10.** t-SNE of real versus synthetic feature vectors (Wednesday model).
 
-Figure 10 gives the non-linear view (van der Maaten and Hinton, 2008), better at exposing local structure. Synthetic points overlap the real manifold across most regions but thin out in some pockets, matching the alignment gaps: the mean absolute per-feature difference is **0.4730** for means and **0.5293** for standard deviations. This is a moderate match — the generator captures the general shape but under-represents the spread of heavy-tailed or near-binary features (byte/packet counts, flag columns), the known hard case for tabular GANs.
+Figure 10 gives the non-linear view (van der Maaten and Hinton, 2008), better at exposing local structure. Synthetic points overlap the real manifold across most regions but thin out in some pockets, matching the alignment gaps: the mean absolute per-feature difference is **0.4583** for means and **0.5373** for standard deviations. This is a moderate match — the generator captures the general shape but under-represents the spread of heavy-tailed or near-binary features (byte/packet counts, flag columns), the known hard case for tabular GANs.
 
 **Extension — full multi-day dataset.** Retraining on a 30,000-row sample spanning all days tests whether one unconditional generator can cover many attack families.
 
@@ -100,7 +100,7 @@ Figure 10 gives the non-linear view (van der Maaten and Hinton, 2008), better at
 
 **Figure 11.** Full-dataset PCA — real points coloured by attack family versus synthetic points.
 
-Figure 11 shows the real data now spans many families and the synthetic points concentrate where the mass is. The gaps worsen slightly (mean **0.5454**, std **0.6094**) — the expected result of spreading one generator across more families: BENIGN and high-volume attacks dominate, while rare families such as Heartbleed and Infiltration are under-represented. The duck test bites harder here than for images, since there is no "just look at it" check for 78 numbers: a fake "attack" matching no real signature could teach a detector the wrong pattern, and a fake "benign" flow drifting toward attack-like statistics could inflate false positives — which is why the PCA/t-SNE overlap and per-feature gaps matter more here than a visual check.
+Figure 11 shows the real data now spans many families and the synthetic points concentrate where the mass is. The gaps worsen slightly (mean **0.5680**, std **0.6145**) — the expected result of spreading one generator across more families: BENIGN and high-volume attacks dominate, while rare families such as Heartbleed and Infiltration are under-represented. The duck test bites harder here than for images, since there is no "just look at it" check for 78 numbers: a fake "attack" matching no real signature could teach a detector the wrong pattern, and a fake "benign" flow drifting toward attack-like statistics could inflate false positives — which is why the PCA/t-SNE overlap and per-feature gaps matter more here than a visual check.
 
 ### Part 2.3: Creative AI — QuickDraw 'birthday cake' Subset
 
@@ -122,7 +122,7 @@ Figure 13 reveals a clean relationship: the ink-density order house (0.1721) < c
 
 ## Conclusion
 
-Across all five experiments the implementations behaved as expected and the metrics are consistent. Part 1 confirmed correctness by landing the sine-wave GAN on its analytic equilibrium and showed a deeper, leaky-activated generator is a safe modification. Part 2 matched architecture to data: a resize-convolution DCGAN for OCT scans (FID 31.94) and QuickDraw sketches (cake 41.01, house 28.76, cat 67.36), and a dense feature-vector GAN for CICIDS traffic (gaps 0.4730/0.5293 on Wednesday). Recurring themes: class imbalance limits how faithfully minority modes are reproduced; FID and alignment gaps measure aggregate fidelity, not individual trustworthiness (the duck test); and intra-class variety predicts difficulty better than surface complexity. For future work I would add a conditional or Wasserstein objective to the tabular model for rare attack families, increase generator capacity for high-variety classes such as cat, and pair FID with a precision–recall metric.
+Across all five experiments the implementations behaved as expected and the metrics are consistent. Part 1 confirmed correctness by landing the sine-wave GAN on its analytic equilibrium and showed a deeper, leaky-activated generator is a safe modification. Part 2 matched architecture to data: a resize-convolution DCGAN for OCT scans (FID 31.94) and QuickDraw sketches (cake 41.01, house 28.76, cat 67.36), and a dense feature-vector GAN for CICIDS traffic (gaps 0.4583/0.5373 on Wednesday). Recurring themes: class imbalance limits how faithfully minority modes are reproduced; FID and alignment gaps measure aggregate fidelity, not individual trustworthiness (the duck test); and intra-class variety predicts difficulty better than surface complexity. For future work I would add a conditional or Wasserstein objective to the tabular model for rare attack families, increase generator capacity for high-variety classes such as cat, and pair FID with a precision–recall metric.
 
 ## References
 
