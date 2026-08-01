@@ -110,7 +110,7 @@ The QuickDraw birthday-cake category provides 144,982 grayscale 28×28 doodles (
 
 **Figure 12.** Real (left) versus generated (right) 'birthday cake' sketches.
 
-Figure 12 shows the generated cakes are recognisable — a cake-body silhouette with candle-like marks appears consistently across the batch — and training stayed stable across 45 epochs (final D ≈ 0.416 / G ≈ 4.214) without diverging. The FID is **41.01**, a solid score for sparse sketches at this resolution.
+Figure 12 shows the generated cakes are recognisable — a cake-body silhouette with candle-like marks appears consistently across the batch — and training stayed stable across 45 epochs (final D ≈ 0.416 / G ≈ 4.214) without diverging. The FID is **41.01**, a solid score for sparse sketches.
 
 **Extension — other categories and sketch complexity.** The pipeline was repeated on *cat* and *house*, with FID placed against an ink-density complexity proxy. The cat model initially collapsed under a one-to-one schedule, so — demonstrating an alternative training strategy rather than a new architecture — cat was trained with three generator updates per discriminator update, a lower discriminator learning rate (a two-time-scale update rule; Heusel et al., 2017) and 60 epochs, cutting its FID from a collapsed ~98 to 67.36.
 
