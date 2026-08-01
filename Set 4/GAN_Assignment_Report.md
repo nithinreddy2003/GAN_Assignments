@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This report accompanies my notebook implementation of generative adversarial networks (GANs). A GAN pits a generator against a discriminator in a minimax game, and at equilibrium the generator's samples become statistically indistinguishable from real data (Goodfellow et al., 2014). Part 1 builds GANs from scratch on synthetic 2D data to make the training dynamics visible; Part 2 applies convolutional and tabular GANs to three real datasets — medical imaging, network-security traffic and hand-drawn sketches. Throughout, the focus is on *why* an architecture suits a dataset and on interpreting the training behaviour and metrics rather than describing them. Part 1 and the image problems use PyTorch, the tabular model TensorFlow/Keras; fixed seeds (`TORCH_SEED = 3030`, `KERAS_SEED = 4040`) make every figure reproducible.
+This report accompanies my notebook implementation of generative adversarial networks (GANs). A GAN pits a generator against a discriminator in a minimax game, and at equilibrium the generator's samples become statistically indistinguishable from real data (Goodfellow et al., 2014). Part 1 builds GANs from scratch on synthetic 2D data to make the training dynamics visible; Part 2 applies convolutional and tabular GANs to three real datasets — medical imaging, network-security traffic and hand-drawn sketches. The focus throughout is on *why* an architecture suits a dataset and on interpreting the metrics, not just describing them. Part 1 and the image problems use PyTorch, the tabular model TensorFlow/Keras; fixed seeds (`TORCH_SEED = 3030`, `KERAS_SEED = 4040`) make every figure reproducible.
 
 ## Part 1: Building and Understanding GANs from Scratch
 
@@ -26,7 +26,7 @@ For the new distribution I chose a noisy 2D Archimedean spiral, trained for 8000
 
 **Figure 2.** Task 2 — real versus generated samples for the 2D spiral after 8000 steps.
 
-Figure 2 shows the generator tracing the spiral's arms rather than collapsing onto a single loop, which would signal mode collapse. Losses stay near equilibrium (D ≈ 1.45, G ≈ 0.66), with a brief excursion to G ≈ 1.1 around step 6000 before settling — a self-correcting wobble, not divergence. The main weakness is that the outermost arm is slightly sparser than the real data, expected since that region carries the least probability mass and gives the weakest learning signal.
+Figure 2 shows the generator tracing the spiral's arms rather than collapsing onto a single loop, which would signal mode collapse. Losses stay near equilibrium (D ≈ 1.45, G ≈ 0.66), with a brief excursion to G ≈ 1.1 around step 6000 before settling — a self-correcting wobble, not divergence. The main weakness is a slightly sparser outermost arm, expected since that region carries the least probability mass and the weakest learning signal.
 
 ### Task 3: Modify the architecture and compare
 
@@ -36,7 +36,7 @@ Holding the target and budget fixed, only the network changed: the baseline gene
 
 **Figure 3.** Task 3 — baseline (depth 3, GELU) versus modified (depth 5, LeakyReLU-0.3) generators against the real spiral.
 
-Figure 3 shows the two point clouds are very similar in coverage and shape, and both hold losses near equilibrium throughout (D ≈ 1.37–1.46, G ≈ 0.66–0.76, ending D ≈ 1.46 / G ≈ 0.69 for the modified network). The deeper LeakyReLU model does not destabilise training; its loss trace is marginally smoother. This shows added depth and a leaky activation are safe here, motivating the deeper convolutional variants used in Part 2.
+Figure 3 shows the two point clouds are very similar in coverage and shape, and both hold losses near equilibrium throughout (D ≈ 1.37–1.46, G ≈ 0.66–0.76, ending D ≈ 1.46 / G ≈ 0.69 for the modified network). The deeper LeakyReLU model does not destabilise training; its loss trace is marginally smoother. This shows depth and a leaky activation are safe here, motivating Part 2's convolutional variants.
 
 ## Part 2: Real-World GAN Applications
 
@@ -62,19 +62,19 @@ Figure 5 shows the characteristic DCGAN pattern rather than a textbook equilibri
 
 Figure 6 shows the generated scans reproduce the defining structure of a real OCT image — a bright, curved retinal band over a darker background — with real variation in band position and curvature rather than one repeated pattern. The Fréchet Inception Distance (Heusel et al., 2017), using an ImageNet-pretrained Inception-v3 extractor (Szegedy et al., 2016), is **31.94**, the strongest image score in this project. The main remaining weakness is fine sub-layer texture rather than gross anatomy.
 
-**Reflection and the "duck test".** A discriminator only ever learns "real or fake", never "anatomically correct" — the GAN version of the duck test, where a sample that looks and "quacks" convincingly passes. Nothing stops the generator inventing a bright region or layer boundary no real scan had, provided it is statistically plausible. A good FID only tells us the *aggregate* statistics of a batch are close to real; it says nothing about whether a single image is trustworthy. In a retinal scan a hallucinated bright patch could mimic pathology that is not there, so I would restrict synthetic scans to augmentation or teaching and re-validate any classifier trained on them against real-only data.
+**Reflection and the "duck test".** A discriminator only ever learns "real or fake", never "anatomically correct" — the GAN version of the duck test, where a sample that looks and "quacks" convincingly passes. Nothing stops the generator inventing a bright region or layer boundary no real scan had, provided it is statistically plausible. A good FID only says the *aggregate* statistics of a batch are close to real, not whether any single image is trustworthy: a hallucinated bright patch could mimic pathology that is not there. I would therefore restrict synthetic scans to augmentation or teaching and re-validate any classifier trained on them against real-only data.
 
-**Extension — conditional GAN.** The extension conditions the generator on the label by concatenating a learned class embedding with the latent vector, while the discriminator receives the label as an extra channel (Mirza and Osindero, 2014).
+**Extension — conditional GAN.** The generator concatenates a learned class embedding with the latent vector and the discriminator takes the label as an extra image channel (Mirza and Osindero, 2014). The label channel let the discriminator overpower the generator (loss climbing to 8–12), so a two-time-scale schedule — lower discriminator learning rate and three generator steps per critic step — was needed to rebalance it.
 
 ![Figure 7](Set%204%20Result%20Images/1499c8335b3ec723f1bd6e9764632d3d642a40ff.png)
 
 **Figure 7.** Conditional GAN output, one diagnostic class per row, generated on demand.
 
-Figure 7 shows the rows differ visibly, confirming the generator responds to the label rather than ignoring it. As expected from the imbalance in Figure 4, the better-represented classes are most convincing — the standard outcome for a conditional GAN on imbalanced data — and the model now generates a chosen class on demand.
+Figure 7 produces a class-dependent scan for each requested label, so conditioning is used and classes generate on demand — but fidelity is visibly lower than the unconditional DCGAN, with grainier scans and a less crisp retinal band. That is the expected cost of splitting limited capacity across four imbalanced classes in the harder conditional game, and it is the extension's main limitation and clearest future-work target.
 
 ### Part 2.2: Cybersecurity — Synthetic Traffic with CICIDS 2017
 
-CICIDS 2017 records each network flow as a numeric feature vector, not an image (Sharafaldin, Lashkari and Ghorbani, 2018). Combining the eight daily files gives 2,830,743 flows and 78 numeric features. With no spatial structure a convolutional model makes no sense; instead I use a fully-connected (dense) GAN as a `keras.Model` subclass with a custom `train_step`, latent dimension 64. The generator uses a linear output (the scaled features are unbounded) and the critic returns a single logit.
+CICIDS 2017 records each network flow as a numeric feature vector, not an image (Sharafaldin, Lashkari and Ghorbani, 2018). Combining the eight daily files gives 2,830,743 flows and 78 numeric features. With no spatial structure, a fully-connected (dense) GAN is used, implemented as a `keras.Model` subclass with a custom `train_step` (latent dimension 64); the generator has a linear output since the features are unbounded.
 
 ![Figure 8](Set%204%20Result%20Images/96c5fc13ac27f1b4c7c7ac54c2baee62d4e868b3.png)
 
@@ -118,11 +118,11 @@ Figure 12 shows the generated cakes are recognisable — a cake-body silhouette 
 
 **Figure 13.** FID by category (left) versus ink-density complexity proxy (right).
 
-Figure 13 reveals a clean relationship: the ink-density order house (0.1721) < cake (0.1967) < cat (0.1986) matches the FID order house (**28.76**) < cake (**41.01**) < cat (**67.36**) exactly. The sparsest, most regular category is easiest and the busiest is hardest. The deeper driver is intra-class variety: cat sketches differ far more from one another (pose, ears, whiskers, sitting versus standing) than houses do, and that variety is the harder thing for a fixed-capacity DCGAN to capture — which is why cat stays weakest even after the stronger schedule.
+Figure 13 reveals a clean relationship: the ink-density order house (0.1721) < cake (0.1967) < cat (0.1986) matches the FID order house (**28.76**) < cake (**41.01**) < cat (**67.36**) exactly. The sparsest, most regular category is easiest and the busiest is hardest. The deeper driver is intra-class variety: cat sketches differ far more from one another (pose, ears, whiskers) than houses do, which is the harder thing for a fixed-capacity DCGAN to capture and why cat stays weakest even after the stronger schedule.
 
 ## Conclusion
 
-Across all five experiments the implementations behaved as theory predicts and the metrics tell a consistent story. Part 1 confirmed correctness by landing the sine-wave GAN on its analytic equilibrium and showed a deeper, leaky-activated generator is a safe modification. Part 2 matched architecture to data: a resize-convolution DCGAN for OCT scans (FID 31.94) and QuickDraw sketches (cake 41.01, house 28.76, cat 67.36), and a dense feature-vector GAN for CICIDS traffic (gaps 0.4730/0.5293 on Wednesday). Recurring themes: class imbalance limits how faithfully minority modes are reproduced; FID and alignment gaps measure aggregate fidelity, not individual trustworthiness (the duck test); and intra-class variety predicts difficulty better than surface complexity. For future work I would add a conditional or Wasserstein objective to the tabular model for rare attack families, increase generator capacity for high-variety classes such as cat, and pair FID with a precision–recall metric.
+Across all five experiments the implementations behaved as expected and the metrics are consistent. Part 1 confirmed correctness by landing the sine-wave GAN on its analytic equilibrium and showed a deeper, leaky-activated generator is a safe modification. Part 2 matched architecture to data: a resize-convolution DCGAN for OCT scans (FID 31.94) and QuickDraw sketches (cake 41.01, house 28.76, cat 67.36), and a dense feature-vector GAN for CICIDS traffic (gaps 0.4730/0.5293 on Wednesday). Recurring themes: class imbalance limits how faithfully minority modes are reproduced; FID and alignment gaps measure aggregate fidelity, not individual trustworthiness (the duck test); and intra-class variety predicts difficulty better than surface complexity. For future work I would add a conditional or Wasserstein objective to the tabular model for rare attack families, increase generator capacity for high-variety classes such as cat, and pair FID with a precision–recall metric.
 
 ## References
 
