@@ -23,6 +23,7 @@ All three real-world models share a common training recipe for comparability: Ba
 .
 ├── GAN_Assignment_Set1_Final.ipynb   # full notebook — all modelling, training, and evaluation
 ├── GAN_Assignment_Report_Set_1.docx  # written report (6–8 pages)
+├── Set 1 Result Images/              # exported figures used in the report
 ├── requirements.txt
 ├── README.md
 └── results/                          # generated on first run — figures, sample grids, zipped archive

@@ -22,7 +22,7 @@ Evaluation uses generator/discriminator loss curves, real-vs-generated grids, Fr
 Set 3/
 ├── GAN_Assignment_Set3_Final.ipynb   # full notebook: all modelling, training, figures and metrics
 ├── GAN_Assignment_Report_Set 3.docx  # written report (6–8 pages, with embedded figures)
-├── Set 3 Images Results/             # exported figures used in the report
+├── Set 3 Result Images/              # exported figures used in the report
 ├── requirements.txt
 └── README.md
 ```
