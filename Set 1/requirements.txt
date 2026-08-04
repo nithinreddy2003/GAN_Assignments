@@ -1,22 +1,25 @@
-# Core numerical / data handling
+# ── Set 1 dependencies (grouped by role) ───────────────────────────────
+# tensorflow[and-cuda] targets an NVIDIA GPU; swap for plain `tensorflow` on CPU.
+
+# numerical / data handling
 numpy
 pandas
 scipy
 scikit-learn
 
-# Plotting
+# plotting
 matplotlib
 
-# Deep learning frameworks
+# deep-learning frameworks
 torch
 torchvision
-tensorflow[and-cuda]   # CPU-only machines: replace with plain `tensorflow`
+tensorflow[and-cuda]
 
-# Datasets
-medmnist                # OCTMNIST (auto-downloads on first run)
-kagglehub                # CICIDS2017 (requires Kaggle API credentials, see README)
+# datasets
+medmnist                 # OCTMNIST — auto-downloads on first run
+kagglehub                # CICIDS 2017 — needs a Kaggle API token (see README)
 
-# Utilities used for downloads / progress bars
+# download / progress-bar utilities
 requests
 tqdm
 pillow

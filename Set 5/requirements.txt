@@ -1,28 +1,27 @@
-# GAN Assignment (Set 5) — dependencies
-# Install with:  pip install -r requirements.txt
-# The notebook's first cell also installs these, so this file is mainly for
-# preparing a clean environment ahead of time.
+###############################################################################
+# Set 5 — environment checklist
 #
-# Framework split: Part 1 and Part 2.2 run on PyTorch;
-# Part 2.1 and Part 2.3 run on TensorFlow/Keras. A CUDA GPU is recommended for Part 2.
+# TODO before running:
+#   [ ] Python 3.10+ with a CUDA GPU (CPU works but is slow)
+#   [ ] pip install -r requirements.txt   (or run the notebook's first cell)
+#   [ ] on CPU-only hardware, replace tensorflow[and-cuda] with plain tensorflow
+#
+# Part 1 + Part 2.2 -> PyTorch     |     Part 2.1 + Part 2.3 -> TensorFlow/Keras
+###############################################################################
 
-# --- Deep-learning frameworks ---
-torch
-torchvision
-tensorflow[and-cuda]      # GPU build; on a CPU-only machine use plain `tensorflow`
+torch                     # Part 1 spectral-norm GAN + Part 2.2 tabular GAN
+torchvision               # image transforms / utilities
+tensorflow[and-cuda]      # Part 2.1 and Part 2.3 image DCGANs
 
-# --- Numerical / data handling ---
-numpy
-pandas
-scipy                     # scipy.linalg.sqrtm is used in the FID computation
-scikit-learn              # PCA, t-SNE and RobustScaler for Part 2.2
+medmnist                  # OCTMNIST loader (Part 2.1)
+kagglehub                 # CICIDS 2017 download (Part 2.2)
 
-# --- Datasets ---
-medmnist                  # OCTMNIST for Part 2.1 (auto-downloads on first run)
-kagglehub                 # CICIDS 2017 for Part 2.2
+numpy                     # numerics
+pandas                    # CICIDS CSV wrangling
+scipy                     # sqrtm for FID
+scikit-learn              # PCA, t-SNE, RobustScaler (Part 2.2)
 
-# --- Plotting and utilities ---
-matplotlib
-pillow
-tqdm
-requests
+matplotlib                # figures
+pillow                    # image I/O
+tqdm                      # progress bars
+requests                  # QuickDraw download
