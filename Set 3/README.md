@@ -53,9 +53,9 @@ Run the cells in order. A few practical notes:
 | Model | Metric | Value |
 |---|---|---|
 | Part 1 sine-wave GAN | D / G loss at convergence | ≈ 1.38 / 0.70 (near the 2ln2 / ln2 equilibrium) |
-| 2.1 OCTMNIST DCGAN | FID | 39.20 |
-| 2.2 CICIDS (Wednesday) | mean / std alignment gap | 0.1227 / 0.2780 |
-| 2.2 CICIDS (all days) | mean / std alignment gap | 0.1059 / 0.2669 |
+| 2.1 OCTMNIST DCGAN | FID | 39.23 |
+| 2.2 CICIDS (Wednesday) | mean / std alignment gap | 0.1576 / 0.2067 |
+| 2.2 CICIDS (all days) | mean / std alignment gap | 0.1300 / 0.1483 |
 | 2.3 QuickDraw | FID — house / cake / cat | 26.44 / 34.29 / 38.79 |
 
 ## Note on the CICIDS labels

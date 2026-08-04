@@ -71,13 +71,13 @@ Each section saves its figures to `results/` (Part 1) or `results_set1/` (Parts 
 
 | Part | Model | Data | Metric | Value |
 |---|---|---|---|---|
-| 2.1 | DCGAN | OCTMNIST scans | FID (lower = better) | **79.02** |
-| 2.1 (ext.) | Conditional DCGAN | OCTMNIST scans | final losses D / G | 0.34 / 4.90 |
-| 2.3 | DCGAN | QuickDraw *birthday cake* | FID | **42.67** |
-| 2.3 (ext.) | DCGAN | QuickDraw *cat* | FID | **41.60** |
-| 2.3 (ext.) | DCGAN | QuickDraw *house* | FID | **22.65** |
+| 2.1 | DCGAN | OCTMNIST scans | FID (lower = better) | **66.83** |
+| 2.1 (ext.) | Conditional DCGAN | OCTMNIST scans | final losses D / G | 0.35 / 4.11 |
+| 2.3 | DCGAN | QuickDraw *birthday cake* | FID | **32.59** |
+| 2.3 (ext.) | DCGAN | QuickDraw *cat* | FID | **41.09** |
+| 2.3 (ext.) | DCGAN | QuickDraw *house* | FID | **24.75** |
 | 2.2 | MLP GAN | CICIDS Wednesday (DoS) | mean-gap / std-gap | **0.0723 / 0.3179** |
-| 2.2 (ext.) | MLP GAN | CICIDS all days | mean-gap / std-gap | **0.1300 / 0.4670** |
+| 2.2 (ext.) | MLP GAN | CICIDS all days | mean-gap / std-gap | **0.1141 / 0.3544** |
 
 Full discussion, model justifications, and figures are in the accompanying report.
 
