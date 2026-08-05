@@ -1,4 +1,4 @@
-# Set 3 — GAN Coursework (Retinal · Traffic · Sketch)
+# GAN Coursework (Retinal · Traffic · Sketch)
 
 **Module:** 7COM1079 Coursework 2 · **Notebook:** `GAN_Assignment_Set3_Final.ipynb` · **Runtime:** GPU + internet
 

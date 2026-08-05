@@ -1,4 +1,4 @@
-# Set 4 — GANs from Scratch and Across Three Domains
+# GANs from Scratch and Across Three Domains
 
 This notebook (`GAN_Assignment_Set4_Final.ipynb`) works through the assignment task by task.
 The checklists below map each requirement to what the notebook actually does.

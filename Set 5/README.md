@@ -1,4 +1,4 @@
-# Set 5 — GAN Coursework FAQ
+# GAN Coursework FAQ
 
 Everything you need to understand and re-run `GAN_Assignment_Set5_Final.ipynb`, written as
 a set of questions.

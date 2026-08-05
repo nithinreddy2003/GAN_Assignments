@@ -1,4 +1,4 @@
-# GAN Assignment — Set 2
+# GAN Assignment
 
 > **TL;DR** — one notebook, five GANs, two frameworks. Open
 > `GAN_Assignment_Set2_Final.ipynb` on a GPU runtime with internet on and

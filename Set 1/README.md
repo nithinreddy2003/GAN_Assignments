@@ -42,7 +42,7 @@ pip install -r requirements.txt
 hardware replace it with plain `tensorflow`. The datasets are obtained automatically at
 run time: **OCTMNIST** via the `medmnist` package, **QuickDraw** via a direct request to
 Google's public bucket, and **CICIDS 2017** via `kagglehub` (which needs a one-time Kaggle
-API token at `~/.kaggle/kaggle.json`). Figures are written to `results/` and `results_set1/`
+API token at `~/.kaggle/kaggle.json`). Figures are written to `results/` and `results_extra/`
 and consolidated into a `results.zip` by the final cell.
 
 ## Results obtained
