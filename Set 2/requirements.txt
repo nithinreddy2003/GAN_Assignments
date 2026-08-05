@@ -1,4 +1,4 @@
-# Set 2 — minimal dependency list (Python 3.10, single CUDA GPU).
+# Minimal dependency list (Python 3.10, single CUDA GPU).
 # Parts 1/2.1/2.2 = PyTorch, Part 2.3 = TensorFlow/Keras. `tensorflow` = CPU/GPU auto build.
 torch
 torchvision

@@ -1,4 +1,4 @@
-# Set 3 dependencies — listed alphabetically, one purpose note each.
+# Dependencies — listed alphabetically, one purpose note each.
 # GPU build of TensorFlow assumed; use plain `tensorflow` on a CPU-only box.
 kagglehub              # CICIDS 2017 download (Part 2.2)
 matplotlib             # all plotting

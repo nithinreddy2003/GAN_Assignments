@@ -1,4 +1,4 @@
-# Set 4 requirements — organised by which stack pulls them in.
+# Requirements — organised by which stack pulls them in.
 # Install order matters a little: install the Torch stack first, then TensorFlow,
 # so the CUDA wheels resolve cleanly. On CPU-only machines drop the "[and-cuda]".
 

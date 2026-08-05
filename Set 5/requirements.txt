@@ -1,5 +1,5 @@
 ###############################################################################
-# Set 5 — environment checklist
+# Environment checklist
 #
 # TODO before running:
 #   [ ] Python 3.10+ with a CUDA GPU (CPU works but is slow)

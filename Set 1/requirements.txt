@@ -1,4 +1,4 @@
-# ── Set 1 dependencies (grouped by role) ───────────────────────────────
+# ── Dependencies (grouped by role) ───────────────────────────────
 # tensorflow[and-cuda] targets an NVIDIA GPU; swap for plain `tensorflow` on CPU.
 
 # numerical / data handling
