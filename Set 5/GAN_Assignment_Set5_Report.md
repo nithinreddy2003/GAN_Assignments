@@ -1,4 +1,4 @@
-# 7COM1079 Coursework 2: generative adversarial networks for retinal, network-traffic and sketch data
+# 7COM1079 Coursework 2: generative adversarial networks in medicine, cybersecurity and creative sketching
 
 Student Name:
 
